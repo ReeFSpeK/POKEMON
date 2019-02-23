@@ -42,52 +42,8 @@ public class TypesTable {
 		/*
 		 * Python script to take the table from: https://bulbapedia.bulbagarden.net/wiki/Type
 		 * And make it into a Java compatible 2D Array:
-		 * 		
-			import sys
-			
-			matrix = []
-	
-			i = 0
-			with open('c:\\users\\home\\desktop\\table.txt', 'r') as openfile:
-			    for line in openfile:
-			        matrix.append([])
-			        num = [(n) for n in line.split('x')]
-	
-			        num.pop()  # Remove the /n digit
-			        matrix[i] = num
-	
-			        i += 1
-	
-			openfile.close()
-			
-	
-			for rowIndex, h in enumerate(matrix):
-			    for colIndex, w in enumerate(h):
-			        print "table[{}][{}] = {};".format(rowIndex, colIndex, w)
+		 * (Script is attached as 'matrix.py', also the table I used for as 'Table.txt')
 		*/
-		
-		/*
-		 * table.txt: 
-		 * 
-			1x1x1x1x1x0.5x1x0x0.5x1x1x1x1x1x1x1x1x1x
-			2x1x0.5x0.5x1x2x0.5x0x2x1x1x1x1x0.5x2x1x2x0.5x
-			1x2x1x1x1x0.5x2x1x0.5x1x1x2x0.5x1x1x1x1x1x
-			1x1x1x0.5x0.5x0.5x1x0.5x0x1x1x2x1x1x1x1x1x2x
-			1x1x0x2x1x2x0.5x1x2x2x1x0.5x2x1x1x1x1x1x
-			1x0.5x2x1x0.5x1x2x1x0.5x2x1x1x1x1x2x1x1x1x
-			1x0.5x0.5x0.5x1x1x1x0.5x0.5x0.5x1x2x1x2x1x1x2x0.5x
-			0x1x1x1x1x1x1x2x1x1x1x1x1x2x1x1x0.5x1x
-			1x1x1x1x1x2x1x1x0.5x0.5x0.5x1x0.5x1x2x1x1x2x
-			1x1x1x1x1x0.5x2x1x2x0.5x0.5x2x1x1x2x0.5x1x1x
-			1x1x1x1x2x2x1x1x1x2x0.5x0.5x1x1x1x0.5x1x1x
-			1x1x0.5x0.5x2x2x0.5x1x0.5x0.5x2x0.5x1x1x1x0.5x1x1x
-			1x1x2x1x0x1x1x1x1x1x2x0.5x0.5x1x1x0.5x1x1x
-			1x2x1x2x1x1x1x1x0.5x1x1x1x1x0.5x1x1x0x1x
-			1x1x2x1x2x1x1x1x0.5x0.5x0.5x2x1x1x0.5x2x1x1x
-			1x1x1x1x1x1x1x1x0.5x1x1x1x1x1x1x2x1x0x
-			1x0.5x1x1x1x1x1x2x1x1x1x1x1x2x1x1x0.5x0.5x
-			1x2x1x0.5x1x1x1x1x0.5x0.5x1x1x1x1x1x2x2x1x
-		 */
     	
 		double[][] table = new double[18][18];
 		
@@ -418,19 +374,38 @@ public class TypesTable {
 	    
 	    return table;
 	}
+	
+	/*
+	* function to calculate damage amp using attack type and an array of defense types
+	* @returns amp damage result
+	*/
+	protected static String calcDamageAmp(String attackType, String[] defenseTypes) {
+		
+		double result = 1;
+		int attackIndex = TypesTable.getTypeIndex(attackType.toUpperCase());
+		
+		for(String type : defenseTypes) 
+		{
+			int defenseIndex = TypesTable.getTypeIndex(type.toUpperCase());
+			
+			result *= TypesTable.getDamageAmp(attackIndex, defenseIndex);
+		}
+		
+		return "x"+result;
+	}
+
+	/*
+	 * function to get Damage amp from the "damage amp table" using attack and defense indexes.
+	 */
+	private static double getDamageAmp(int attackIndex, int defenseIndex) {
+		
+		return TypesTable.table[attackIndex][defenseIndex];
+	}
 
 	/*
 	 * function to get type index from the types HashTable.
 	 */
 	protected static int getTypeIndex(String type) {
 		return types.get(type);
-	}
-	
-	/*
-	 * function to get Damage amp from the "damage amp table" using attack and defense indexes.
-	 */
-	protected static double getDamageAmp(int attackIndex, int defenseIndex) {
-		
-		return TypesTable.table[attackIndex][defenseIndex];
 	}
 }

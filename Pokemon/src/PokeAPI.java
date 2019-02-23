@@ -1,15 +1,12 @@
-import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.*;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PokeAPI {
@@ -65,13 +62,6 @@ public class PokeAPI {
 	            addToCache(url, jsonObject);
 	            
 	            return jsonObject;
-
-	        } catch (ClientProtocolException e) {
-	            e.printStackTrace();
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        } catch (JSONException e) {
-	            e.printStackTrace();
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
@@ -84,6 +74,48 @@ public class PokeAPI {
 		return null;
 	}
 
+    /*
+	* function to calculate damage amp using attack type and an array of defense types (PokeAPI!)
+	* @returns amp damage result
+	*/
+	protected static String calcDamageAmp(String attackType, String[] defenseTypes) {
+		
+		double result = 1;
+		
+		// Get from PokeAPI the damage_ralations object of the relevant attack type
+		String url = PokeAPI.types.get(attackType);
+		JSONObject json = PokeAPI.request(url);
+		JSONObject damage_relations = json.getJSONObject("damage_relations");
+		
+		JSONArray double_damage_array = damage_relations.getJSONArray("double_damage_to");
+		JSONArray half_damage_array = damage_relations.getJSONArray("half_damage_to");
+		JSONArray no_damage_array = damage_relations.getJSONArray("no_damage_to");
+		
+		result*= getDamageAmpFromArray(double_damage_array, defenseTypes, 2);
+		result*= getDamageAmpFromArray(half_damage_array, defenseTypes, 0.5);
+		result*= getDamageAmpFromArray(no_damage_array, defenseTypes, 0);
+		
+		
+		return "x"+result;
+	}
+	
+	private static double getDamageAmpFromArray(JSONArray array, String[] defenseTypes, double damage_amp) {
+		
+		double result = 1;
+		
+		for (int i = 0; i < array.length(); ++i) {
+		    JSONObject rec = array.getJSONObject(i);
+		    String id = rec.getString("name");
+		    
+		    for(String type : defenseTypes) {
+		    	if(id.equals(type.toLowerCase()))
+		    		result*=damage_amp;
+		    }
+		}
+		
+		return result;
+	}
+    
     private static void addToCache(String url, JSONObject jsonObject) {
     	cache.put(url, jsonObject);
     }

@@ -9,13 +9,18 @@ public class Launch {
 	public static void main(String[] args) {
 		
 		// User Input for which stage he want's go for.
-		System.out.println("Please Choose the stage you'd like to go for (1-4)");
-		int stage = Integer.parseInt(sc.nextLine());
-				
-		switch (stage) {
-			case 1: stage1(); break;
-			case 2: stage2(); break;
-			case 3: stage3(); break;
+		// To finish, enter 0.
+		boolean flag = true;
+		while(flag) {
+			System.out.println("Please Choose the stage you'd like to go for (1-3) {To finish, 0}");
+			int stage = Integer.parseInt(sc.nextLine());
+					
+			switch (stage) {
+				case 1: stage1(); 	break;
+				case 2: stage2(); 	break;
+				case 3: stage3(); 	break;
+				case 0: flag=false; break;
+			}
 		}
 	}
 	
@@ -32,28 +37,10 @@ public class Launch {
 		String[] defenseTypes = input.split("->")[1].split(" ");
 		
 		// Calculate the total damage amp for the attack
-		String damageAmp = calcDamageAmp(attackType, defenseTypes);
+		String damageAmp = TypesTable.calcDamageAmp(attackType, defenseTypes);
 		
 		// Print result
 		System.out.println(damageAmp);
-	}
-	/*
-	* function to calculate damage amp using attack type and an array of defense types
-	* @returns amp damage result
-	*/
-	private static String calcDamageAmp(String attackType, String[] defenseTypes) {
-		
-		double result = 1;
-		int attackIndex = TypesTable.getTypeIndex(attackType.toUpperCase());
-		
-		for(String type : defenseTypes) 
-		{
-			int defenseIndex = TypesTable.getTypeIndex(type.toUpperCase());
-			
-			result *= TypesTable.getDamageAmp(attackIndex, defenseIndex);
-		}
-		
-		return "x"+result;
 	}
 
 	private static void stage2() {
@@ -69,52 +56,12 @@ public class Launch {
 		String[] defenseTypes = input.split("->")[1].split(" ");
 		
 		// Calculate the total damage amp for the attack		
-		String damageAmp = calcDamageAmpAPI(attackType, defenseTypes);
+		String damageAmp = PokeAPI.calcDamageAmp(attackType, defenseTypes);
 		
 		// Print result
 		System.out.println(damageAmp);
 	}
-	/*
-	* function to calculate damage amp using attack type and an array of defense types (PokeAPI!)
-	* @returns amp damage result
-	*/
-	private static String calcDamageAmpAPI(String attackType, String[] defenseTypes) {
-		
-		double result = 1;
-		
-		// Get from PokeAPI the damage_ralations object of the relevant attack type
-		String url = PokeAPI.types.get(attackType);
-		JSONObject json = PokeAPI.request(url);
-		JSONObject damage_relations = json.getJSONObject("damage_relations");
-		
-		JSONArray double_damage_array = damage_relations.getJSONArray("double_damage_to");
-		JSONArray half_damage_array = damage_relations.getJSONArray("half_damage_to");
-		JSONArray no_damage_array = damage_relations.getJSONArray("no_damage_to");
-		
-		result*= getDamageAmpFromArray(double_damage_array, defenseTypes, 2);
-		result*= getDamageAmpFromArray(half_damage_array, defenseTypes, 0.5);
-		result*= getDamageAmpFromArray(no_damage_array, defenseTypes, 0);
-		
-		
-		return "x"+result;
-	}
-	private static double getDamageAmpFromArray(JSONArray array, String[] defenseTypes, double damage_amp) {
-		
-		double result = 1;
-		
-		for (int i = 0; i < array.length(); ++i) {
-		    JSONObject rec = array.getJSONObject(i);
-		    String id = rec.getString("name");
-		    
-		    for(String type : defenseTypes) {
-		    	if(id.equals(type.toLowerCase()))
-		    		result*=damage_amp;
-		    }
-		}
-		
-		return result;
-	}
-
+	
 	private static void stage3() {
 		
 		// Print Usage
@@ -146,12 +93,11 @@ public class Launch {
 		}
 	
 		//Calculate damage amp
-		String damageAmp = calcDamageAmpAPI(attackType, new String[] {defenseType});
+		String damageAmp = PokeAPI.calcDamageAmp(attackType, new String[] {defenseType});
 		
 		System.out.println(damageAmp);
 	}
 
-	
 	private static void printUsage(boolean isStage3) {
 		
 		// Print Usage
