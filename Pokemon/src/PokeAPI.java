@@ -1,5 +1,4 @@
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.HttpResponse;
@@ -27,9 +26,8 @@ public class PokeAPI {
 		JSONObject json = request(url+"type/");
 		JSONArray array = json.getJSONArray("results");
 		
-		Iterator<Object> iterator = array.iterator();
-        while (iterator.hasNext()) {
-            JSONObject jsonObject = (JSONObject) iterator.next();
+		for (int i = 0; i < array.length(); ++i) {
+		    JSONObject jsonObject = array.getJSONObject(i);
             
             types.put(jsonObject.get("name").toString(), jsonObject.get("url").toString());
         }
@@ -104,8 +102,8 @@ public class PokeAPI {
 		double result = 1;
 		
 		for (int i = 0; i < array.length(); ++i) {
-		    JSONObject rec = array.getJSONObject(i);
-		    String id = rec.getString("name");
+		    JSONObject jsonObject = array.getJSONObject(i);
+		    String id = jsonObject.getString("name");
 		    
 		    for(String type : defenseTypes) {
 		    	if(id.equals(type.toLowerCase()))

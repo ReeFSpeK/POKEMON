@@ -21,6 +21,7 @@ public class Launch {
 				case 3: stage3(); 	break;
 				case 0: flag=false; break;
 			}
+			System.out.println("------------");
 		}
 	}
 	
